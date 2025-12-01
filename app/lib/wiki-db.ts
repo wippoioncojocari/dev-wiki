@@ -6,7 +6,16 @@ type DbSection = Prisma.SectionGetPayload<{
   include: { content: true };
 }>;
 
-type SectionNode = Section & { children: SectionNode[]; position: number };
+type SectionNode = {
+  id: string;
+  title: string;
+  summary?: string;
+  addedAt?: string;
+  updatedAt?: string;
+  content?: ContentBlock[];
+  children: SectionNode[];
+  position: number;
+};
 
 const formatDate = (date: Date | null | undefined): string | undefined =>
   date ? date.toISOString().slice(0, 10) : undefined;

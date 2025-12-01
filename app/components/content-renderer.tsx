@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { ContentBlock } from "../lib/wiki";
 
 export function ContentRenderer({ blocks }: { blocks: ContentBlock[] }) {
@@ -61,9 +62,12 @@ export function ContentRenderer({ blocks }: { blocks: ContentBlock[] }) {
               key={index}
               className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-sm ring-1 ring-[color:var(--accent-soft)]"
             >
-              <img
+              <Image
                 src={block.src}
                 alt={block.alt}
+                width={1200}
+                height={800}
+                unoptimized
                 className="h-auto w-full object-cover transition duration-300 hover:scale-[1.01]"
               />
               {block.caption ? (

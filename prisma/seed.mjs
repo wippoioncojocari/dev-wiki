@@ -1,10 +1,11 @@
-const { PrismaClient } = require("@prisma/client");
-const wikiData = require("../app/wiki-data.json");
+import { PrismaClient } from "@prisma/client";
+import wikiData from "../app/wiki-data.json" with { type: "json" };
 
 const prisma = new PrismaClient();
 
 const toPayload = (block) => {
-  const { type, ...payload } = block;
+  const { type: _omit, ...payload } = block;
+  void _omit;
   return payload;
 };
 

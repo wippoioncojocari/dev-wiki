@@ -21,8 +21,30 @@ type CodeBlock = { id: string; type: "code"; title: string; language: string; va
 type ImageBlock = { id: string; type: "image"; alt: string; src: string; caption: string };
 type VideoBlock = { id: string; type: "video"; title: string; youtubeId: string };
 type BlockForm = ParagraphBlock | ListBlock | CodeBlock | ImageBlock | VideoBlock;
+type BlockType = BlockForm["type"];
+type BlockByType<T extends BlockType> = Extract<BlockForm, { type: T }>;
 
 const newId = () => `${Date.now().toString(36)}-${Math.random().toString(16).slice(2, 8)}`;
+
+function createBlock<T extends BlockType>(type: T): BlockByType<T> {
+  const id = newId();
+  switch (type) {
+    case "paragraph":
+      return { id, type, text: "" } as BlockByType<T>;
+    case "list":
+      return { id, type, title: "", itemsText: "" } as BlockByType<T>;
+    case "code":
+      return { id, type, title: "", language: "ts", value: "" } as BlockByType<T>;
+    case "image":
+      return { id, type, alt: "", src: "", caption: "" } as BlockByType<T>;
+    case "video":
+      return { id, type, title: "", youtubeId: "" } as BlockByType<T>;
+    default: {
+      const _exhaustive: never = type;
+      return _exhaustive;
+    }
+  }
+}
 
 export function CreateSectionForm({ sections }: Props) {
   const router = useRouter();
@@ -54,22 +76,20 @@ export function CreateSectionForm({ sections }: Props) {
     setForm((prev) => ({ ...prev, [key]: event.target.value }));
   };
 
-  const addBlock = (type: BlockForm["type"]) => {
+  const addBlock = (type: BlockType) => {
     resetMessages();
-    const base = { id: newId(), type } as BlockForm;
-    const defaults: Record<BlockForm["type"], BlockForm> = {
-      paragraph: { ...base, text: "" },
-      list: { ...base, title: "", itemsText: "" },
-      code: { ...base, title: "", language: "ts", value: "" },
-      image: { ...base, alt: "", src: "", caption: "" },
-      video: { ...base, title: "", youtubeId: "" },
-    };
-    setBlocks((prev) => [...prev, defaults[type]]);
+    setBlocks((prev) => [...prev, createBlock(type)]);
   };
 
-  const updateBlock = (id: string, updater: (block: BlockForm) => BlockForm) => {
+  const updateBlock = <T extends BlockType>(
+    id: string,
+    type: T,
+    updater: (block: BlockByType<T>) => BlockByType<T>,
+  ) => {
     resetMessages();
-    setBlocks((prev) => prev.map((b) => (b.id === id ? updater(b) : b)));
+    setBlocks((prev) =>
+      prev.map((b) => (b.id === id && b.type === type ? updater(b as BlockByType<T>) : b)),
+    );
   };
 
   const removeBlock = (id: string) => {
@@ -305,7 +325,7 @@ export function CreateSectionForm({ sections }: Props) {
                     <textarea
                       value={block.text}
                       onChange={(e) =>
-                        updateBlock(block.id, (b) => ({ ...b, text: e.target.value }))
+                        updateBlock(block.id, "paragraph", (b) => ({ ...b, text: e.target.value }))
                       }
                       className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm outline-none transition focus:border-[color:var(--accent)]"
                       placeholder="Text paragraf"
@@ -317,7 +337,7 @@ export function CreateSectionForm({ sections }: Props) {
                       <input
                         value={block.title}
                         onChange={(e) =>
-                          updateBlock(block.id, (b) => ({ ...b, title: e.target.value }))
+                          updateBlock(block.id, "list", (b) => ({ ...b, title: e.target.value }))
                         }
                         className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm outline-none transition focus:border-[color:var(--accent)]"
                         placeholder="Titlu (optional)"
@@ -325,7 +345,7 @@ export function CreateSectionForm({ sections }: Props) {
                       <textarea
                         value={block.itemsText}
                         onChange={(e) =>
-                          updateBlock(block.id, (b) => ({ ...b, itemsText: e.target.value }))
+                          updateBlock(block.id, "list", (b) => ({ ...b, itemsText: e.target.value }))
                         }
                         className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm outline-none transition focus:border-[color:var(--accent)]"
                         placeholder="Un item pe linie"
@@ -338,7 +358,7 @@ export function CreateSectionForm({ sections }: Props) {
                       <input
                         value={block.title}
                         onChange={(e) =>
-                          updateBlock(block.id, (b) => ({ ...b, title: e.target.value }))
+                          updateBlock(block.id, "code", (b) => ({ ...b, title: e.target.value }))
                         }
                         className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm outline-none transition focus:border-[color:var(--accent)]"
                         placeholder="Titlu (optional)"
@@ -346,7 +366,7 @@ export function CreateSectionForm({ sections }: Props) {
                       <input
                         value={block.language}
                         onChange={(e) =>
-                          updateBlock(block.id, (b) => ({ ...b, language: e.target.value }))
+                          updateBlock(block.id, "code", (b) => ({ ...b, language: e.target.value }))
                         }
                         className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm outline-none transition focus:border-[color:var(--accent)]"
                         placeholder="Limbaj (ex: ts, js, sql)"
@@ -354,7 +374,7 @@ export function CreateSectionForm({ sections }: Props) {
                       <textarea
                         value={block.value}
                         onChange={(e) =>
-                          updateBlock(block.id, (b) => ({ ...b, value: e.target.value }))
+                          updateBlock(block.id, "code", (b) => ({ ...b, value: e.target.value }))
                         }
                         className="sm:col-span-2 min-h-[120px] rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm outline-none transition focus:border-[color:var(--accent)]"
                         placeholder="Cod"
@@ -367,7 +387,7 @@ export function CreateSectionForm({ sections }: Props) {
                       <input
                         value={block.alt}
                         onChange={(e) =>
-                          updateBlock(block.id, (b) => ({ ...b, alt: e.target.value }))
+                          updateBlock(block.id, "image", (b) => ({ ...b, alt: e.target.value }))
                         }
                         className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm outline-none transition focus:border-[color:var(--accent)]"
                         placeholder="Alt text"
@@ -375,7 +395,7 @@ export function CreateSectionForm({ sections }: Props) {
                       <input
                         value={block.caption}
                         onChange={(e) =>
-                          updateBlock(block.id, (b) => ({ ...b, caption: e.target.value }))
+                          updateBlock(block.id, "image", (b) => ({ ...b, caption: e.target.value }))
                         }
                         className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm outline-none transition focus:border-[color:var(--accent)]"
                         placeholder="Caption (optional)"
@@ -383,7 +403,7 @@ export function CreateSectionForm({ sections }: Props) {
                       <input
                         value={block.src}
                         onChange={(e) =>
-                          updateBlock(block.id, (b) => ({ ...b, src: e.target.value }))
+                          updateBlock(block.id, "image", (b) => ({ ...b, src: e.target.value }))
                         }
                         className="sm:col-span-2 w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm outline-none transition focus:border-[color:var(--accent)]"
                         placeholder="URL imagine"
@@ -396,7 +416,7 @@ export function CreateSectionForm({ sections }: Props) {
                       <input
                         value={block.title}
                         onChange={(e) =>
-                          updateBlock(block.id, (b) => ({ ...b, title: e.target.value }))
+                          updateBlock(block.id, "video", (b) => ({ ...b, title: e.target.value }))
                         }
                         className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm outline-none transition focus:border-[color:var(--accent)]"
                         placeholder="Titlu (optional)"
@@ -404,7 +424,7 @@ export function CreateSectionForm({ sections }: Props) {
                       <input
                         value={block.youtubeId}
                         onChange={(e) =>
-                          updateBlock(block.id, (b) => ({ ...b, youtubeId: e.target.value }))
+                          updateBlock(block.id, "video", (b) => ({ ...b, youtubeId: e.target.value }))
                         }
                         className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm outline-none transition focus:border-[color:var(--accent)]"
                         placeholder="YouTube ID"

@@ -7,6 +7,8 @@ import { fetchWikiSections } from "@/app/lib/wiki-db";
 import { findSectionById } from "@/app/lib/wiki";
 import { contentPayload, updateSectionSchema } from "@/app/lib/validation";
 
+type ParamsContext = { params: Promise<{ id: string }> };
+
 async function nextPosition(parentId: string | null): Promise<number> {
   const result = await prisma.section.aggregate({
     _max: { position: true },
@@ -36,22 +38,24 @@ async function collectDescendants(id: string): Promise<Set<string>> {
   return descendants;
 }
 
-export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_: NextRequest, { params }: ParamsContext) {
+  const { id } = await params;
   const sections = await fetchWikiSections();
-  const section = findSectionById(params.id, sections);
+  const section = findSectionById(id, sections);
   if (!section) {
     return NextResponse.json({ error: "Section not found." }, { status: 404 });
   }
   return NextResponse.json(section);
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: ParamsContext) {
   try {
+    const { id } = await params;
     const body = await req.json();
     const parsed = updateSectionSchema.parse(body);
 
     const current = await prisma.section.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!current) {
@@ -59,7 +63,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     }
 
     if (parsed.content) {
-      const childrenCount = await prisma.section.count({ where: { parentId: params.id } });
+      const childrenCount = await prisma.section.count({ where: { parentId: id } });
       if (childrenCount > 0) {
         return NextResponse.json(
           { error: "Cannot set content on a non-leaf section. Remove or move its children first." },
@@ -88,7 +92,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     }
 
     if (targetParentId) {
-      const descendants = await collectDescendants(params.id);
+      const descendants = await collectDescendants(id);
       if (descendants.has(targetParentId)) {
         return NextResponse.json(
           { error: "Cannot move section under its own descendant." },
@@ -105,20 +109,20 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
           ? await nextPosition(targetParentId)
           : undefined;
 
-    const updateData: Prisma.SectionUpdateInput = { updatedAt: new Date() };
+    const updateData: Prisma.SectionUncheckedUpdateInput = { updatedAt: new Date() };
     if (parsed.title) updateData.title = parsed.title;
     if (parsed.summary !== undefined) updateData.summary = parsed.summary;
     if (parentChanged || parsed.parentId !== undefined) updateData.parentId = targetParentId;
     if (position !== undefined) updateData.position = position;
 
-    const tx: Promise<unknown>[] = [];
+    const tx: Prisma.PrismaPromise<unknown>[] = [];
 
     if (parsed.content) {
-      tx.push(prisma.contentBlock.deleteMany({ where: { sectionId: params.id } }));
+      tx.push(prisma.contentBlock.deleteMany({ where: { sectionId: id } }));
       tx.push(
         prisma.contentBlock.createMany({
           data: parsed.content.map((block, index) => ({
-            sectionId: params.id,
+            sectionId: id,
             order: index,
             type: block.type,
             payload: contentPayload(block),
@@ -129,14 +133,14 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
     tx.push(
       prisma.section.update({
-        where: { id: params.id },
+        where: { id },
         data: updateData,
       }),
     );
 
     await prisma.$transaction(tx);
     revalidatePath("/");
-    return NextResponse.json({ status: "updated", id: params.id });
+    return NextResponse.json({ status: "updated", id });
   } catch (error) {
     if (error instanceof ZodError) {
       return NextResponse.json({ error: error.flatten() }, { status: 400 });
@@ -146,11 +150,12 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: ParamsContext) {
   try {
+    const { id: paramId } = await params;
     const url = req.nextUrl;
     const fromPath = url?.pathname?.split("/").filter(Boolean).pop();
-    const id = (params?.id || fromPath || "").trim();
+    const id = (paramId || fromPath || "").trim();
 
     if (!id) {
       return NextResponse.json({ error: "Missing section id." }, { status: 400 });

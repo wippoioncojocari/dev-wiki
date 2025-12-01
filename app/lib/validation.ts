@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
 
 export const contentBlockSchema = z.discriminatedUnion("type", [
   z.object({
@@ -50,7 +51,8 @@ export type ContentBlockInput = z.infer<typeof contentBlockSchema>;
 export type CreateSectionInput = z.infer<typeof createSectionSchema>;
 export type UpdateSectionInput = z.infer<typeof updateSectionSchema>;
 
-export function contentPayload(block: ContentBlockInput): Record<string, unknown> {
-  const { type, ...payload } = block;
-  return payload;
+export function contentPayload(block: ContentBlockInput): Prisma.InputJsonValue {
+  const { type: _omit, ...payload } = block;
+  void _omit;
+  return payload as Prisma.InputJsonValue;
 }

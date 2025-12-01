@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { collectLeafPaths, findSectionByPath } from "../lib/wiki";
 import { TimelinePageClient } from "../components/timeline-page-client";
 import { loadWikiData } from "../lib/wiki-source";
@@ -18,5 +19,9 @@ export default async function Page() {
     };
   });
 
-  return <TimelinePageClient items={leaves} />;
+  return (
+    <Suspense fallback={<div className="p-6 text-slate-200">Se incarca cronologia...</div>}>
+      <TimelinePageClient items={leaves} />
+    </Suspense>
+  );
 }
