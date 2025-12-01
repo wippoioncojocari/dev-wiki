@@ -78,16 +78,9 @@ export async function PATCH(req: NextRequest, { params }: ParamsContext) {
     if (targetParentId) {
       const parent = await prisma.section.findUnique({
         where: { id: targetParentId },
-        include: { content: true },
       });
       if (!parent) {
         return NextResponse.json({ error: "New parent section not found." }, { status: 404 });
-      }
-      if (parent.content.length > 0) {
-        return NextResponse.json(
-          { error: "New parent has content; it must be content-less to accept children." },
-          { status: 400 },
-        );
       }
     }
 

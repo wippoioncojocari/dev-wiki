@@ -2,6 +2,7 @@ import Link from "next/link";
 import { loadWikiData } from "../lib/wiki-source";
 import { CreateSectionForm } from "../components/create-section-form";
 import { DeleteSectionForm } from "../components/delete-section-form";
+import { EditSectionForm } from "../components/edit-section-form";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -33,6 +34,7 @@ export default async function AdminPage() {
 
       <main className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-0">
         <CreateSectionForm sections={data.sections} />
+        <EditSectionForm sections={data.sections} />
         <DeleteSectionForm sections={data.sections} />
 
         <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 text-sm text-slate-300">

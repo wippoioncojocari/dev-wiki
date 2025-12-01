@@ -29,20 +29,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Section id already exists." }, { status: 409 });
     }
 
-    let parent = null;
     if (parsed.parentId) {
-      parent = await prisma.section.findUnique({
+      const parent = await prisma.section.findUnique({
         where: { id: parsed.parentId },
-        include: { content: true },
       });
       if (!parent) {
         return NextResponse.json({ error: "Parent section not found." }, { status: 404 });
-      }
-      if (parent.content.length > 0) {
-        return NextResponse.json(
-          { error: "Parent has content; convert it to a leaf or remove its content before adding children." },
-          { status: 400 },
-        );
       }
     }
 
