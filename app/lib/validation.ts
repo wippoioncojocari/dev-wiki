@@ -1,0 +1,56 @@
+import { z } from "zod";
+
+export const contentBlockSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("paragraph"),
+    text: z.string().min(1),
+  }),
+  z.object({
+    type: z.literal("list"),
+    title: z.string().optional(),
+    items: z.array(z.string().min(1)).min(1),
+  }),
+  z.object({
+    type: z.literal("code"),
+    title: z.string().optional(),
+    language: z.string().optional(),
+    value: z.string().min(1),
+  }),
+  z.object({
+    type: z.literal("image"),
+    alt: z.string().min(1),
+    src: z.string().url(),
+    caption: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal("video"),
+    title: z.string().optional(),
+    youtubeId: z.string().min(1),
+  }),
+]);
+
+export const createSectionSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  summary: z.string().optional(),
+  parentId: z.string().optional(),
+  position: z.number().int().nonnegative().optional(),
+  content: z.array(contentBlockSchema).optional(),
+});
+
+export const updateSectionSchema = z.object({
+  title: z.string().min(1).optional(),
+  summary: z.string().optional(),
+  parentId: z.string().nullable().optional(),
+  position: z.number().int().nonnegative().optional(),
+  content: z.array(contentBlockSchema).optional(),
+});
+
+export type ContentBlockInput = z.infer<typeof contentBlockSchema>;
+export type CreateSectionInput = z.infer<typeof createSectionSchema>;
+export type UpdateSectionInput = z.infer<typeof updateSectionSchema>;
+
+export function contentPayload(block: ContentBlockInput): Record<string, unknown> {
+  const { type, ...payload } = block;
+  return payload;
+}

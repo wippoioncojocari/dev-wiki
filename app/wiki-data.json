@@ -1,0 +1,221 @@
+{
+  "title": "Wiki de Inginerie",
+  "tagline": "Un playbook usor, bazat pe JSON, pentru a construi si opera produse impreuna.",
+  "sections": [
+    {
+      "id": "front-end",
+      "title": "Front end",
+      "addedAt": "2025-01-05",
+      "updatedAt": "2025-02-12",
+      "summary": "Standardele UI pentru echipele care folosesc Next.js, Tailwind si livrare bazata pe componente.",
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Standardizam pe Next.js App Router cu randare server-first, Tailwind v4 pentru stilizare si un set restrans de primitive compozabile. Tine PR-urile mici, expune token-urile de design prin variabile CSS si foloseste verificari vizuale automate atunci cand riscul UI este mare."
+        },
+        {
+          "type": "list",
+          "title": "Ghidaj",
+          "items": [
+            "Preferam Server Components; Client Components doar pentru interactivitate si API-uri de browser.",
+            "Un singur layout per suprafata: schelet de pagina + navigatie sticky; evita prop drilling profund folosind provideri de context.",
+            "Pastreaza bundle-urile usoare: amana scripturile necritice, co-locheaza fetch-urile per ruta si memoizeaza randarile client scumpe."
+          ]
+        }
+      ],
+      "children": [
+        {
+          "id": "fe-stack",
+          "title": "Stack si tooling",
+          "addedAt": "2025-01-06",
+          "updatedAt": "2025-02-10",
+          "summary": "Biblioteci de baza si default-uri pentru experiente consistente.",
+          "content": [
+            {
+              "type": "code",
+              "title": "Pattern shell aplicatie",
+              "language": "tsx",
+              "value": "export default function Page() {\n  return (\n    <Shell>\n      <SideNav items={nav} />\n      <Content>\n        <Header title=\"Docs\" />\n        <Article>{children}</Article>\n      </Content>\n    </Shell>\n  );\n}"
+            },
+            {
+              "type": "list",
+              "title": "Stack implicit",
+              "items": [
+                "Next.js App Router, Route Handlers pentru API-uri compatibile edge.",
+                "Tailwind CSS v4 cu token-uri in :root; evita culorile ad-hoc inline.",
+                "Storybook pentru validarea componentelor; Chromatic sau Playwright pentru difuri vizuale."
+              ]
+            }
+          ],
+          "children": [
+            {
+              "id": "fe-images",
+              "title": "Media si asset-uri",
+              "addedAt": "2025-01-08",
+              "updatedAt": "2025-02-05",
+              "summary": "Serveste asset-uri optimizate cu alt text descriptiv.",
+              "content": [
+                {
+                  "type": "image",
+                  "alt": "Carduri de componente cu gradient discret",
+                  "src": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80",
+                  "caption": "Livreaza componente cu cover-uri responsive; documenteaza props in Storybook."
+                },
+                {
+                  "type": "paragraph",
+                  "text": "Foloseste next/image pentru asset-uri locale; asset-urile remote ar trebui sa fie in spatele unui CDN. Tine imaginile hero sub 300kb; prefera SVG pentru iconite."
+                }
+              ]
+            },
+            {
+              "id": "fe-videos",
+              "title": "Micro-invatari",
+              "addedAt": "2025-01-10",
+              "updatedAt": "2025-02-02",
+              "summary": "Demo-uri scurte pentru onboarding rapid.",
+              "content": [
+                {
+                  "type": "video",
+                  "title": "Tur de layout si routing",
+                  "youtubeId": "Sklc_fQBmcs"
+                },
+                {
+                  "type": "paragraph",
+                  "text": "Inregistreaza clipuri de 3-5 minute pentru fluxuri dificile (auth, data fetching, token-uri de design). Leagale aici pentru a accelera acomodarea."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fe-quality",
+          "title": "Standard de cod",
+          "addedAt": "2025-01-12",
+          "updatedAt": "2025-02-08",
+          "summary": "Componente lizibile, linting obligatoriu si accesibilitate intentionata.",
+          "content": [
+            {
+              "type": "list",
+              "title": "Checklist",
+              "items": [
+                "ARIA: fiecare element interactiv are rol + label; starile de focus sunt vizibile implicit.",
+                "Stilizare: utility-first; promoveaza pattern-urile comune in componente dupa 2 utilizari.",
+                "State: prefera React Query sau RSC data fetching; state local pentru UI doar vizual."
+              ]
+            },
+            {
+              "type": "code",
+              "title": "Exemplu buton accesibil",
+              "language": "tsx",
+              "value": "type CTAProps = { label: string; onClick: () => void; };\n\nexport function PrimaryCTA({ label, onClick }: CTAProps) {\n  return (\n    <button\n      onClick={onClick}\n      className=\"inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500\"\n    >\n      {label}\n      <span aria-hidden>→</span>\n    </button>\n  );\n}"
+            }
+          ]
+        },
+        {
+          "id": "fe-performance",
+          "title": "Metode de optimizare",
+          "addedAt": "2025-01-15",
+          "updatedAt": "2025-02-12",
+          "summary": "Pastreaza suprafetele rapide in retele lente si pe device-uri slabe.",
+          "content": [
+            {
+              "type": "list",
+              "title": "Reguli de performanta",
+              "items": [
+                "Amana JS-ul de client unde este posibil; prefera payload-uri RSC streamable.",
+                "Foloseste limite Suspense in jurul insulelor API; pastreaza skeleton-ul fallback consistent.",
+                "Data fetching cache-first cu hint-uri de revalidare; hidrateaza doar ce este interactiv."
+              ]
+            },
+            {
+              "type": "code",
+              "title": "Fetch prietenos cu edge",
+              "language": "ts",
+              "value": "export async function getTeam() {\n  const res = await fetch(`${process.env.API}/team`, {\n    next: { revalidate: 60 },\n    cache: \"force-cache\"\n  });\n  if (!res.ok) throw new Error(\"Team endpoint failed\");\n  return res.json();\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "backend",
+      "title": "Backend",
+      "addedAt": "2025-01-05",
+      "updatedAt": "2025-02-11",
+      "summary": "Design de servicii, standarde API si pregatire operationala.",
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Back-end-urile sunt TypeScript-first folosind functii serverless usoare pentru munca sincron si cozi pentru sarcini grele. Toate endpoint-urile sunt observabile, autentificate si versionate."
+        },
+        {
+          "type": "list",
+          "title": "Principles",
+          "items": [
+            "APIs publice sunt versionate; APIs interne sunt tipate si usor de gasit.",
+            "Security by default: mutual TLS unde este disponibil, secrete rotite si acces auditat.",
+            "Observabilitatea este obligatorie: trasee + loguri + metrici cu dashboard-uri SLO."
+          ]
+        }
+      ],
+      "children": [
+        {
+          "id": "be-apis",
+          "title": "Stil API",
+          "addedAt": "2025-01-07",
+          "updatedAt": "2025-02-10",
+          "summary": "REST pentru suprafete user-facing; GraphQL sau tRPC pentru orchestrare interna.",
+          "content": [
+            {
+              "type": "code",
+              "title": "Baza pentru route handler",
+              "language": "ts",
+              "value": "import { NextRequest, NextResponse } from \"next/server\";\nimport { z } from \"zod\";\n\nconst Body = z.object({ email: z.string().email() });\n\nexport async function POST(req: NextRequest) {\n  const body = Body.parse(await req.json());\n  await subscribeUser(body.email);\n  return NextResponse.json({ status: \"ok\" }, { status: 201 });\n}"
+            },
+            {
+              "type": "paragraph",
+              "text": "Valideaza fiecare payload la edge; propaga ID-uri de corelatie pentru loguri si trasee. Foloseste chei de idempotenta pentru endpoint-urile de scriere."
+            }
+          ]
+        },
+        {
+          "id": "be-data",
+          "title": "Date si stocare",
+          "addedAt": "2025-01-09",
+          "updatedAt": "2025-02-09",
+          "summary": "Alege cel mai mic primitiv fiabil: Postgres pentru OLTP, Redis pentru trasee rapide, object storage pentru blob-uri.",
+          "content": [
+            {
+              "type": "list",
+              "title": "Default-uri",
+              "items": [
+                "Schimbarile de schema prin PR-uri de migrari; include note de rollout compatibile inapoi.",
+                "Protejeaza citirile cu timeouts si circuit breakers; evita N+1 cu batching pe server.",
+                "Cripteaza in repaus si in tranzit; elimina PII din loguri."
+              ]
+            }
+          ]
+        },
+        {
+          "id": "be-observability",
+          "title": "Observabilitate",
+          "addedAt": "2025-01-11",
+          "updatedAt": "2025-02-06",
+          "summary": "Semnale de aur intre servicii pentru incidente mici.",
+          "content": [
+            {
+              "type": "code",
+              "title": "Logger minimal",
+              "language": "ts",
+              "value": "import pino from \"pino\";\n\nexport const logger = pino({\n  name: \"service-name\",\n  level: process.env.LOG_LEVEL || \"info\",\n  base: null,\n  transport: process.env.NODE_ENV === \"development\" ? { target: \"pino-pretty\" } : undefined\n});"
+            },
+            {
+              "type": "paragraph",
+              "text": "Ataseaza ID-uri de trace/span la fiecare linie de log. Trimite SLO-uri de uptime per serviciu si documenteaza runbook-urile langa alerte."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

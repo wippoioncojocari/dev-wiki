@@ -34,3 +34,26 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Backend (Prisma + SQLite)
+
+- Local DB is SQLite at `prisma/dev.db` (see `.env` for `DATABASE_URL`).
+- Generate client: `npm run prisma:generate`
+- Create/update schema: `npm run prisma:db:push` (or `npm run prisma:migrate` to create a named migration)
+- Seed from `app/wiki-data.json`: `npm run prisma:seed`
+- Endpoints:
+  - `GET /api/wiki` – returns the full tree as `WikiData`
+  - `GET /api/sections` – returns only sections
+  - `POST /api/sections` – create section (`{ id, title, summary?, parentId?, position?, content? }`)
+  - `GET /api/sections/:id` – fetch a section tree node
+  - `PATCH /api/sections/:id` – update metadata/parent/content; rejects content on non-leaves
+  - `DELETE /api/sections/:id` – deletes a section and its subtree
+
+### Using Vercel Postgres
+- Update `prisma/schema.prisma` to `provider = "postgresql"` (already set) and use env vars `DATABASE_URL` and `SHADOW_DATABASE_URL`.
+- Set those env vars in Vercel project settings (and locally in `.env.local`); do not commit credentials.
+- Generate client and push/migrate:
+  - `npx prisma generate`
+  - `npx prisma migrate dev --name init-postgres` (locally to create migration files)
+  - In CI/Deploy: `npx prisma migrate deploy`
+- Seed (optional) into Postgres: `npm run prisma:seed` (uses current `DATABASE_URL`).

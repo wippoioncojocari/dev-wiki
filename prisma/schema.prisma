@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+enum ContentType {
+  paragraph
+  list
+  code
+  image
+  video
+}
+
+model Section {
+  id        String   @id
+  title     String
+  summary   String?
+  addedAt   DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  parentId  String?
+  position  Int      @default(0)
+
+  parent   Section?   @relation("SectionChildren", fields: [parentId], references: [id], onDelete: Cascade)
+  children Section[]  @relation("SectionChildren")
+  content  ContentBlock[]
+
+  @@index([parentId, position])
+}
+
+model ContentBlock {
+  id        Int         @id @default(autoincrement())
+  sectionId String
+  order     Int
+  type      ContentType
+  payload   Json
+
+  section Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@index([sectionId, order])
+}
