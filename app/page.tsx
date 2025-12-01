@@ -3,6 +3,7 @@ import { collectLeafPaths } from "./lib/wiki";
 import { loadWikiData } from "./lib/wiki-source";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function Page() {
   const data = await loadWikiData();

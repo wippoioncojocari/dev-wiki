@@ -7,6 +7,7 @@ import { loadWikiData } from "../lib/wiki-source";
 type Params = { slug?: string[] };
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const data = await loadWikiData();
