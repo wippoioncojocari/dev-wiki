@@ -1,19 +1,12 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import {
-  collectLeafPaths,
-  findSectionByPath,
-  findFirstLeafPathFromSection,
-} from "../lib/wiki";
+import { collectLeafPaths, findSectionByPath, findFirstLeafPathFromSection } from "../lib/wiki";
 import { WikiPageClient } from "../components/wiki-page-client";
 import { loadWikiData } from "../lib/wiki-source";
 
 type Params = { slug?: string[] };
 
-export async function generateStaticParams(): Promise<Params[]> {
-  const data = await loadWikiData();
-  return collectLeafPaths(data.sections).map(({ ids }) => ({ slug: ids }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const data = await loadWikiData();

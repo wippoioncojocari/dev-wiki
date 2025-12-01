@@ -3,6 +3,8 @@ import { collectLeafPaths, findSectionByPath } from "../lib/wiki";
 import { TimelinePageClient } from "../components/timeline-page-client";
 import { loadWikiData } from "../lib/wiki-source";
 
+export const dynamic = "force-dynamic";
+
 export default async function Page() {
   const data = await loadWikiData();
   const leaves = collectLeafPaths(data.sections).map(({ ids, section }) => {

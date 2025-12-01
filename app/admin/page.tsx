@@ -3,6 +3,8 @@ import { loadWikiData } from "../lib/wiki-source";
 import { CreateSectionForm } from "../components/create-section-form";
 import { DeleteSectionForm } from "../components/delete-section-form";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminPage() {
   const data = await loadWikiData();
 
