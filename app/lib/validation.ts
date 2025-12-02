@@ -1,15 +1,33 @@
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
 
+const textStyleSchema = z.object({
+  fontSize: z.enum(["sm", "base", "lg", "xl"]).optional(),
+  fontWeight: z.enum(["normal", "medium", "semibold", "bold"]).optional(),
+  accent: z.boolean().optional(),
+  highlight: z.boolean().optional(),
+});
+
 export const contentBlockSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("paragraph"),
     text: z.string().min(1),
+    style: textStyleSchema.optional(),
   }),
   z.object({
     type: z.literal("list"),
     title: z.string().optional(),
-    items: z.array(z.string().min(1)).min(1),
+    items: z
+      .array(
+        z.union([
+          z.string().min(1),
+          z.object({
+            text: z.string().min(1),
+            style: textStyleSchema.optional(),
+          }),
+        ]),
+      )
+      .min(1),
   }),
   z.object({
     type: z.literal("code"),

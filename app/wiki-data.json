@@ -1,6 +1,6 @@
 {
   "title": "Wiki de Inginerie",
-  "tagline": "Un playbook usor, bazat pe JSON, pentru a construi si opera produse impreuna.",
+  "tagline": "Un playbook usor, pentru a construi si opera produse impreuna.",
   "sections": [
     {
       "id": "front-end",

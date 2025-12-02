@@ -1,6 +1,15 @@
+export type TextStyle = {
+  fontSize?: "sm" | "base" | "lg" | "xl";
+  fontWeight?: "normal" | "medium" | "semibold" | "bold";
+  accent?: boolean;
+  highlight?: boolean;
+};
+
+export type ListItem = string | { text: string; style?: TextStyle };
+
 export type ContentBlock =
-  | { type: "paragraph"; text: string }
-  | { type: "list"; title?: string; items: string[] }
+  | { type: "paragraph"; text: string; style?: TextStyle }
+  | { type: "list"; title?: string; items: ListItem[] }
   | { type: "code"; language?: string; title?: string; value: string }
   | { type: "image"; alt: string; src: string; caption?: string }
   | { type: "video"; title?: string; youtubeId: string };

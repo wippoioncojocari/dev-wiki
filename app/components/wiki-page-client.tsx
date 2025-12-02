@@ -321,7 +321,7 @@ export function WikiPageClient({ data, activeSlug }: Props) {
                 <ContentRenderer blocks={activeSection.content} />
               ) : (
                 <p className="text-sm text-slate-400">
-                  Sectiunea nu are continut inca. Adauga blocuri prin API sau Prisma Studio.
+                  Sectiunea nu are continut inca.
                 </p>
               )}
             </>
