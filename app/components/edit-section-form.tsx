@@ -379,7 +379,7 @@ export function EditSectionForm({ sections }: Props) {
         </label>
 
         <div className="space-y-3 rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-          <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="sticky top-3 z-10 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-800/80 bg-slate-900/95 px-4 py-3 shadow-sm backdrop-blur">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Continut</p>
               {contentDisabled ? (
