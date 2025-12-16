@@ -23,12 +23,22 @@ export default async function AdminPage() {
               Creeaza noduri noi si leaga-le la parinti existenti. Continutul initial este optional.
             </p>
           </div>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 rounded-full border border-slate-700 px-4 py-2 text-sm font-medium text-slate-100 transition hover:border-slate-500 hover:bg-slate-800"
-          >
-            Inapoi la wiki
-          </Link>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 rounded-full border border-slate-700 px-4 py-2 text-sm font-medium text-slate-100 transition hover:border-slate-500 hover:bg-slate-800"
+            >
+              Inapoi la wiki
+            </Link>
+            <form action="/admin/logout" method="POST">
+              <button
+                type="submit"
+                className="inline-flex items-center gap-2 rounded-full border border-rose-400/50 px-4 py-2 text-sm font-medium text-rose-100 transition hover:border-rose-300 hover:bg-rose-500/10"
+              >
+                Delogare
+              </button>
+            </form>
+          </div>
         </div>
       </header>
 
