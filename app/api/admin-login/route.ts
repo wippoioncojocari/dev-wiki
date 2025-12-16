@@ -60,5 +60,9 @@ const getFingerprint = (request: NextRequest): string => {
   if (forwarded) {
     return forwarded.split(",")[0]?.trim() || "unknown";
   }
-  return request.ip ?? "unknown";
+  const realIp =
+    request.headers.get("x-real-ip") ??
+    request.headers.get("cf-connecting-ip") ??
+    request.headers.get("true-client-ip");
+  return realIp?.trim() || "unknown";
 };

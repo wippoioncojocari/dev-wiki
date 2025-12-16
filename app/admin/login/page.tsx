@@ -12,9 +12,16 @@ const errorMessages: Record<string, string> = {
   setup: "Configureaza ADMIN_PASSWORD si ADMIN_COOKIE_SECRET in mediul de rulare.",
 };
 
-export default function AdminLoginPage({ searchParams }: { searchParams?: SearchParams }) {
-  const errorKey = Array.isArray(searchParams?.error) ? searchParams?.error[0] : searchParams?.error;
-  const nextParam = Array.isArray(searchParams?.next) ? searchParams?.next[0] : searchParams?.next;
+export default async function AdminLoginPage({
+  searchParams,
+}: {
+  searchParams?: SearchParams | Promise<SearchParams>;
+}) {
+  const resolvedParams = await searchParams;
+  const errorKey = Array.isArray(resolvedParams?.error)
+    ? resolvedParams?.error[0]
+    : resolvedParams?.error;
+  const nextParam = Array.isArray(resolvedParams?.next) ? resolvedParams?.next[0] : resolvedParams?.next;
   const nextPath = sanitizeNextPath(nextParam);
   const message = errorKey ? errorMessages[errorKey] ?? "Nu s-a putut valida cererea." : null;
 
